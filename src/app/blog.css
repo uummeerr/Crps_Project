@@ -1,0 +1,266 @@
+/* Blog: the list at /blog, the article page, and the post cards (which the
+   home page also shows). Imported by components/BlogCard.js, so it loads
+   wherever a card does. Uses the design tokens from globals.css.
+
+   Every post takes its accent colour from --h, the hue set per field in
+   content/blog.js. */
+
+/* ---------- Labels ---------- */
+/* Field badge on a plain background (top of an article). */
+.badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.02em; white-space: nowrap;
+  background: hsl(var(--h, 176) 62% 92%); color: hsl(var(--h, 176) 64% 23%); }
+.badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: hsl(var(--h, 176) 62% 40%); }
+/* Frosted label that sits on top of a cover photo. Wherever a blur is set in
+   this file, the -webkit- line comes first: written the other way round, the
+   build keeps only the -webkit- line, which Chrome and Firefox ignore. */
+.chip { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; color: #fff;
+  background: rgba(6, 36, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5); }
+.chip svg { width: 14px; height: 14px; }
+.chip.field::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: hsl(var(--h, 176) 85% 70%); box-shadow: 0 0 0 3px hsl(var(--h, 176) 85% 70% / 0.28); }
+.chip.latest { background: var(--mint); border-color: transparent; color: #06242a; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.chip.latest::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #06242a; animation: ping-dark 1.8s ease-out infinite; }
+@keyframes ping-dark { 0% { box-shadow: 0 0 0 0 rgba(6, 36, 42, 0.5); } 100% { box-shadow: 0 0 0 8px rgba(6, 36, 42, 0); } }
+:is(.post-chips, .post-kicker) .sample { height: 30px; padding: 0 12px; }
+
+/* ---------- Toolbar: field filters and search ---------- */
+.blog-bar { position: relative; z-index: 5; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding: 7px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); }
+/* The filters scroll sideways when they do not fit; the right edge fades out
+   to show there is more. The padding leaves room for the focus ring. */
+.filters { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; margin: -6px 0 -6px -6px; padding: 6px 26px 6px 6px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 26px), transparent); }
+.filters::-webkit-scrollbar { display: none; }
+.filter { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; height: 44px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; font-size: 14.5px; font-weight: 600; color: var(--soft); white-space: nowrap; cursor: pointer;
+  transition: background 0.3s, color 0.3s; }
+.filter::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: hsl(var(--h, 176) 62% 40%); transition: background 0.3s; }
+.filter b { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--dim); transition: color 0.3s; }
+.filter:hover { background: var(--surface); color: var(--ink); }
+.filter:focus-visible { outline-offset: 2px; border-radius: 999px; }
+.filter[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.filter[aria-pressed="true"]::before { background: hsl(var(--h, 176) 80% 68%); }
+.filter[aria-pressed="true"] b { color: inherit; opacity: 0.72; }
+
+.search { position: relative; flex: 0 0 232px; }
+.search input { width: 100%; height: 46px; padding: 0 46px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); font: inherit; font-size: 15px; color: var(--ink); transition: border-color 0.3s, box-shadow 0.3s; }
+.search input::placeholder { color: var(--dim); }
+.search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.search input:hover { border-color: var(--teal); }
+.search input:focus-visible { outline: none; border-radius: 999px; border-color: var(--teal); box-shadow: 0 0 0 4px color-mix(in srgb, var(--teal) 24%, transparent); }
+.search > svg { position: absolute; left: 16px; top: 50%; translate: 0 -50%; width: 18px; height: 18px; color: var(--dim); pointer-events: none; }
+/* The "/" key hint; hidden on touch screens, where there is no keyboard. */
+.search kbd { position: absolute; right: 11px; top: 50%; translate: 0 -50%; display: none; place-items: center; width: 24px; height: 24px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font: 600 12px/1 var(--font-body); color: var(--dim); pointer-events: none; }
+.search-clear { position: absolute; right: 8px; top: 50%; translate: 0 -50%; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: var(--tint); color: var(--soft); cursor: pointer; transition: background 0.3s, color 0.3s; }
+.search-clear::before { content: ""; position: absolute; inset: -7px; }
+.search-clear:hover { background: var(--ink); color: var(--bg); }
+.search-clear:focus-visible { border-radius: 50%; }
+.search-clear svg { width: 15px; height: 15px; }
+
+.blog-status { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; margin-bottom: 14px; padding: 0 8px; font-size: 14.5px; color: var(--dim); }
+.blog-status strong { font-weight: 600; color: var(--ink); }
+.blog-reset { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; font-size: 14px; font-weight: 600; color: var(--teal-deep); cursor: pointer; transition: background 0.3s; }
+.blog-reset:hover { background: var(--tint); }
+.blog-reset:focus-visible { border-radius: 999px; }
+.blog-reset svg { width: 15px; height: 15px; }
+
+.empty { display: grid; justify-items: center; gap: 6px; padding: 70px 30px; border-radius: var(--radius); border: 1px dashed var(--line-strong); text-align: center; color: var(--soft); }
+.empty-icon { display: grid; place-items: center; width: 60px; height: 60px; margin-bottom: 10px; border-radius: 20px; background: var(--tint); color: var(--teal-deep); }
+.empty-icon svg { width: 26px; height: 26px; }
+.empty strong { font-size: 22px; letter-spacing: -0.02em; color: var(--ink); }
+.empty .btn { margin-top: 18px; }
+
+/* ---------- Post cards ---------- */
+.blog-lead { margin-bottom: 22px; }
+.blog-grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+/* Cards rise in one after another each time the filter changes. */
+.blog-lead.fresh, .blog-grid.fresh > * { animation: rise 0.7s var(--ease) backwards; animation-delay: calc(var(--n, 0) * 60ms); }
+
+/* The photo sits inside the card with a margin all round, like a mounted print. */
+.post { position: relative; display: flex; flex-direction: column; padding: 10px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); isolation: isolate;
+  transition: translate 0.6s var(--ease), box-shadow 0.6s var(--ease), border-color 0.4s; }
+.post:focus-visible { border-radius: var(--radius); }
+/* A post with no photo gets a tinted panel and its field's icon instead. */
+.post-cover { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 10; overflow: hidden; isolation: isolate; border-radius: 20px;
+  background: linear-gradient(135deg, hsl(var(--h, 176) 62% 88%), hsl(calc(var(--h, 176) + 36) 70% 95%)); color: hsl(var(--h, 176) 58% 28%); }
+.post-cover::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.5; background-image: radial-gradient(hsl(var(--h, 176) 50% 40% / 0.35) 1px, transparent 1.4px); background-size: 18px 18px; -webkit-mask-image: linear-gradient(135deg, #000, transparent 70%); mask-image: linear-gradient(135deg, #000, transparent 70%); }
+.post-cover::after { content: ""; position: absolute; z-index: -1; right: -18%; bottom: -46%; width: 62%; aspect-ratio: 1; border-radius: 50%; border: 1px solid hsl(var(--h, 176) 50% 40% / 0.3); box-shadow: 0 0 0 26px hsl(var(--h, 176) 60% 60% / 0.1), 0 0 0 56px hsl(var(--h, 176) 60% 60% / 0.07); transition: scale 0.9s var(--ease); }
+.post-cover > svg { width: 62px; height: 62px; stroke-width: 1.25; transition: scale 0.8s var(--ease), rotate 0.8s var(--ease); }
+.post-cover.has-photo::before, .post-cover.has-photo::after { display: none; }
+.post-cover.has-photo img { object-fit: cover; transition: scale 0.9s var(--ease); }
+.post-chips { position: absolute; z-index: 2; inset: 12px 12px auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.post-read { position: absolute; z-index: 2; left: 12px; bottom: 12px; }
+
+.post-body { display: flex; flex-direction: column; flex: 1; gap: 10px; padding: 20px 14px 10px; }
+.post-body h3 { font-size: 21px; line-height: 1.24; letter-spacing: -0.025em; }
+/* The title is underlined from left to right while the card is hovered. */
+.post-body h3 span { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat; transition: background-size 0.6s var(--ease); }
+.post-body p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; font-size: 15.5px; line-height: 1.6; color: var(--soft); }
+.post-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: auto; padding-top: 12px; }
+.post-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 9px; font-size: 13.5px; color: var(--dim); }
+.post-meta i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+.post-go { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); color: var(--soft);
+  transition: background 0.3s, color 0.3s, border-color 0.3s, rotate 0.5s var(--ease); }
+.post-go svg { width: 18px; height: 18px; }
+
+/* The newest post, shown large at the top of the unfiltered list: the photo
+   fills the card and the text sits over a dark fade at its foot. */
+.post.featured { justify-content: flex-end; min-height: clamp(430px, 40vw, 540px); padding: 0; overflow: hidden; border-color: transparent; background: #06242a; color: #fff; box-shadow: var(--shadow-md); }
+.post.featured::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(6, 36, 42, 0) 18%, rgba(6, 36, 42, 0.62) 60%, rgba(6, 36, 42, 0.95)), linear-gradient(90deg, rgba(6, 36, 42, 0.55), rgba(6, 36, 42, 0) 64%); }
+.post.featured .post-cover { position: absolute; inset: 0; z-index: -2; aspect-ratio: auto; border-radius: 0; }
+.post.featured .post-cover:not(.has-photo) { place-items: center end; padding-right: 9%; background: linear-gradient(135deg, hsl(var(--h, 176) 55% 20%), hsl(calc(var(--h, 176) + 36) 50% 11%)); color: hsl(var(--h, 176) 70% 76%); }
+.post.featured .post-cover > svg { width: 120px; height: 120px; }
+.post.featured .post-body { flex: none; gap: 14px; max-width: 780px; padding: 44px; }
+.post-kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 4px; }
+.post.featured h3 { font-size: clamp(30px, 3.5vw, 48px); line-height: 1.06; letter-spacing: -0.04em; }
+.post.featured .post-body p { -webkit-line-clamp: 2; line-clamp: 2; max-width: 58ch; font-size: 17.5px; color: rgba(255, 255, 255, 0.88); }
+.post.featured .post-foot { justify-content: flex-start; gap: 12px 22px; flex-wrap: wrap; margin-top: 0; padding-top: 12px; }
+.post.featured .post-meta { font-size: 14.5px; color: rgba(255, 255, 255, 0.84); }
+.post-cta { display: inline-flex; align-items: center; gap: 12px; height: 48px; padding: 0 7px 0 20px; border-radius: 999px; background: #fff; font-size: 14.5px; font-weight: 600; color: #06242a; white-space: nowrap; }
+.post-cta b { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #06242a; color: var(--mint); transition: rotate 0.5s var(--ease); }
+.post-cta svg { width: 16px; height: 16px; }
+
+/* Grid shapes. A card left alone on the last row stretches across it and lays
+   its photo beside its text; two left over share the row half and half. */
+@media (min-width: 761px) and (max-width: 1080px) {
+  .blog-grid { grid-template-columns: repeat(2, 1fr); }
+  .blog-grid > .post:nth-child(odd):last-child { grid-column: 1 / -1; flex-direction: row; }
+  .blog-grid > .post:nth-child(odd):last-child .post-cover { flex: 0 0 46%; aspect-ratio: auto; min-height: 260px; }
+  .blog-grid > .post:nth-child(odd):last-child .post-body { justify-content: center; gap: 12px; padding: 22px 26px 22px 30px; }
+  .blog-grid > .post:nth-child(odd):last-child .post-foot { margin-top: 6px; }
+}
+@media (min-width: 1081px) {
+  .blog-grid { grid-template-columns: repeat(6, 1fr); }
+  .blog-grid > .post { grid-column: span 2; }
+  .blog-grid > .post:nth-child(3n + 1):nth-last-child(2), .blog-grid > .post:nth-child(3n + 2):last-child { grid-column: span 3; }
+  .blog-grid > .post:nth-child(3n + 1):nth-last-child(2) .post-cover, .blog-grid > .post:nth-child(3n + 2):last-child .post-cover { aspect-ratio: 2 / 1; }
+  .blog-grid > .post:nth-child(3n + 1):last-child { grid-column: 1 / -1; flex-direction: row; }
+  .blog-grid > .post:nth-child(3n + 1):last-child .post-cover { flex: 0 0 44%; aspect-ratio: auto; min-height: 290px; }
+  .blog-grid > .post:nth-child(3n + 1):last-child .post-body { justify-content: center; gap: 14px; padding: 28px 36px 28px 40px; }
+  .blog-grid > .post:nth-child(3n + 1):last-child h3 { font-size: clamp(25px, 2.4vw, 32px); line-height: 1.14; letter-spacing: -0.03em; }
+  .blog-grid > .post:nth-child(3n + 1):last-child .post-body p { max-width: 56ch; font-size: 16.5px; }
+  .blog-grid > .post:nth-child(3n + 1):last-child .post-foot { margin-top: 8px; }
+  /* The toolbar stays in reach, just under the menu bar, while the list scrolls. */
+  .blog-bar { position: sticky; top: 84px; z-index: 20; background: color-mix(in srgb, var(--bg) 86%, transparent); -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5); box-shadow: 0 12px 30px rgba(10, 42, 45, 0.07); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .search kbd { display: grid; }
+  .post:hover { translate: 0 -6px; border-color: hsl(var(--h, 176) 50% 46% / 0.55); box-shadow: var(--shadow-md), 0 28px 50px -28px hsl(var(--h, 176) 70% 36% / 0.55); }
+  .post.featured:hover { border-color: transparent; }
+  .post:hover .post-cover > svg { scale: 1.14; rotate: -6deg; }
+  .post:hover .post-cover::after { scale: 1.12; }
+  .post:hover .post-cover.has-photo img { scale: 1.06; }
+  .post:hover h3 span { background-size: 100% 1.5px; }
+  .post:hover .post-go { background: var(--ink); border-color: var(--ink); color: var(--mint); rotate: -45deg; }
+  .post:hover .post-cta b { rotate: -45deg; }
+}
+
+/* ---------- Article page ---------- */
+/* Reading progress, drawn across the top of the window. */
+.progress { position: fixed; z-index: 60; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--mint)); transform-origin: left; transform: scaleX(0); }
+@supports (animation-timeline: scroll()) {
+  .progress { animation: progress-grow linear both; animation-timeline: scroll(root); }
+}
+@keyframes progress-grow { to { transform: scaleX(1); } }
+
+.article-head { position: relative; isolation: isolate; overflow: clip; padding: 170px 0 64px; }
+/* With a cover photo, the header runs on behind the top of the photo. */
+.article-head.has-cover { padding-bottom: 168px; }
+.article-kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.article-head h1 { max-width: 21ch; margin: 22px 0; font-size: clamp(38px, 5.2vw, 72px); letter-spacing: -0.04em; line-height: 1.02; }
+.article-deck { max-width: 62ch; margin-bottom: 34px; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.55; color: var(--soft); }
+.byline { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; padding: 8px 24px 8px 8px; border-radius: 999px; font-size: 14.5px; color: var(--soft);
+  background: var(--glass, rgba(255, 255, 255, 0.72)); border: 1px solid var(--line); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: var(--shadow-sm); }
+.byline > span { display: inline-flex; align-items: center; gap: 7px; }
+.byline .who { gap: 12px; padding-right: 22px; border-right: 1px solid var(--line); }
+.byline .who img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.byline .who strong { display: block; font-size: 15px; line-height: 1.25; letter-spacing: -0.01em; color: var(--ink); }
+.byline .who small { display: block; font-size: 12.5px; line-height: 1.3; color: var(--dim); }
+.byline svg { width: 16px; height: 16px; color: var(--teal); }
+
+/* The cover photo straddles the header and the white reading area. */
+.article-cover-band { position: relative; z-index: 1; margin-top: -104px; background: linear-gradient(transparent 104px, var(--surface) 104px); }
+.article-cover { position: relative; aspect-ratio: 21 / 9; margin: 0; overflow: hidden; border-radius: var(--radius); background: var(--tint); box-shadow: var(--shadow-lg); }
+.article-cover img { object-fit: cover; }
+
+.article-grid { display: grid; grid-template-columns: minmax(0, 720px) 320px; justify-content: space-between; gap: 64px; align-items: start; }
+.article { counter-reset: part; }
+.article p { font-size: 18.5px; line-height: 1.78; color: var(--soft); }
+.article p + p { margin-top: 1.15em; }
+.article .lede { font-size: clamp(20px, 1.9vw, 24px); line-height: 1.5; letter-spacing: -0.015em; color: var(--ink); }
+/* Each headed section is numbered; the same numbers appear in the contents list. */
+.article-part { margin-top: 56px; scroll-margin-top: 110px; }
+.article-part h2 { margin-bottom: 16px; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.12; }
+.article-part h2::before { counter-increment: part; content: counter(part, decimal-leading-zero); display: block; margin-bottom: 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; line-height: 1; color: var(--teal); }
+.sample-note { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 36px; padding: 16px 20px; border-radius: var(--radius-sm); background: #fff4d6; color: #6b4800; font-size: 15px; }
+.sample-note svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+.article .note { display: flex; gap: 12px; align-items: flex-start; margin-top: 52px; font-size: 15px; line-height: 1.6; }
+.article .note svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; color: var(--teal); }
+.article-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--line); }
+.share { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.share-label { margin-right: 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.share button { cursor: pointer; }
+.share .pill-link:focus-visible { border-radius: 999px; }
+.share .pill-link.done { background: var(--mint-soft); border-color: transparent; color: var(--teal-deep); }
+
+/* Beside the article: the contents list and the author. Stays in view while reading. */
+.aside-stack { position: sticky; top: 104px; display: grid; gap: 16px; }
+.toc { padding: 22px 12px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg); }
+.toc small { display: block; margin: 0 12px 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.toc ol { display: grid; gap: 2px; counter-reset: toc; }
+.toc a { display: grid; grid-template-columns: 24px 1fr; gap: 8px; align-items: baseline; min-height: 44px; padding: 11px 12px; border-radius: 16px; font-size: 15px; font-weight: 500; line-height: 1.35; color: var(--soft); transition: background 0.3s, color 0.3s, box-shadow 0.3s; }
+.toc a::before { counter-increment: toc; content: counter(toc, decimal-leading-zero); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--dim); transition: color 0.3s; }
+.toc a:hover { color: var(--ink); }
+.toc a:focus-visible { border-radius: 16px; }
+.toc a[aria-current="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+.toc a[aria-current="true"]::before { color: var(--teal); }
+.aside-stack .author-card { padding: 26px; }
+.author-who { display: flex; align-items: center; gap: 14px; }
+.author-who img { width: 56px; height: 56px; border-radius: 18px; object-fit: cover; flex-shrink: 0; }
+.author-who strong { display: block; font-size: 17px; line-height: 1.2; letter-spacing: -0.02em; }
+.author-who small { display: block; margin-top: 3px; font-size: 13.5px; color: rgba(255, 255, 255, 0.74); }
+.author-card p { margin: 20px 0; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.16); font-size: 15px; }
+.author-card .btn { width: 100%; justify-content: space-between; }
+.author-more { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; margin: 8px 0 -10px; font-size: 14.5px; font-weight: 600; color: var(--mint); }
+.author-more svg { width: 16px; height: 16px; transition: translate 0.4s var(--ease); }
+.author-more:hover svg { translate: 4px 0; }
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 1080px) {
+  .blog-bar { flex-wrap: wrap; padding: 8px; border-radius: 32px; }
+  .search { flex: 1 1 100%; order: -1; }
+  .filters { flex: 1 1 100%; margin: -6px -8px -6px -6px; }
+  .article-grid { grid-template-columns: minmax(0, 1fr); }
+  .aside-stack { position: static; }
+  .toc { display: none; }
+}
+@media (max-width: 760px) {
+  .post.featured { min-height: 480px; }
+  .post.featured .post-body { padding: 24px; }
+  .post.featured h3 { font-size: 28px; line-height: 1.1; }
+  .post.featured .post-body p { -webkit-line-clamp: 3; line-clamp: 3; font-size: 16px; }
+  .article-head { padding: 136px 0 44px; }
+  .article-head.has-cover { padding-bottom: 104px; }
+  .article-deck { margin-bottom: 26px; }
+  .byline { width: 100%; padding: 12px 16px; border-radius: 24px; }
+  .byline .who { flex: 1 1 100%; padding: 0 0 12px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .article-cover-band { margin-top: -60px; background: linear-gradient(transparent 60px, var(--surface) 60px); }
+  .article-cover { aspect-ratio: 16 / 9; border-radius: var(--radius-sm); }
+  .article p { font-size: 17.5px; }
+  .article-part { margin-top: 44px; }
+}
+
+/* ---------- Dark theme ----------
+   The tokens carry most of it (see "Dark theme" in globals.css, which also
+   holds the dark colours of a cover with no photo). The home page's film
+   section is dark in either theme, so the card fix is written for it too. */
+html[data-theme="dark"] .badge { background: hsl(var(--h, 176) 45% 19%); color: hsl(var(--h, 176) 75% 84%); }
+html[data-theme="dark"] .badge::before { background: hsl(var(--h, 176) 70% 62%); }
+html[data-theme="dark"] .filter::before { background: hsl(var(--h, 176) 68% 62%); }
+html[data-theme="dark"] .filter[aria-pressed="true"]::before { background: hsl(var(--h, 176) 62% 32%); }
+html[data-theme="dark"] .blog-bar { box-shadow: none; }
+html[data-theme="dark"] .post.featured { border-color: var(--line); }
+@media (hover: hover) and (pointer: fine) {
+  /* --ink is light here, so the arrow on it turns deep teal to stay visible. */
+  html[data-theme="dark"] .post:hover .post-go,
+  html[data-passage="on"] .passage .post:hover .post-go { color: #0a5a5b; }
+}
