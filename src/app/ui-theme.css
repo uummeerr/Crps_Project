@@ -1,0 +1,71 @@
+/* Semantic colors for shadcn components; the existing site's CSS stays in control. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: #07090c;
+  --foreground: #ffffff;
+  --card: #0d1014;
+  --card-foreground: #ffffff;
+  --popover: #0d1014;
+  --popover-foreground: #ffffff;
+  --primary: #5cffc8;
+  --primary-foreground: #0a1713;
+  --secondary: #1a232b;
+  --secondary-foreground: #ffffff;
+  --muted: #1a232b;
+  --muted-foreground: #aab4bf;
+  --accent: #1c3631;
+  --accent-foreground: #eafff7;
+  --destructive: #e85e68;
+  --border: #2b353f;
+  --input: #2b353f;
+  --ring: #5cffc8;
+}
+
+.ui-light {
+  color-scheme: light;
+  --background: #fafbfc;
+  --foreground: #141c2b;
+  --card: #ffffff;
+  --card-foreground: #141c2b;
+  --popover: #ffffff;
+  --popover-foreground: #141c2b;
+  --primary: #26785e;
+  --primary-foreground: #ffffff;
+  --secondary: #edf2f5;
+  --secondary-foreground: #273141;
+  --muted: #edf2f5;
+  --muted-foreground: #596472;
+  --accent: #e3f3eb;
+  --accent-foreground: #234f40;
+  --destructive: #c93041;
+  --border: #dce4e9;
+  --input: #dce4e9;
+  --ring: #26785e;
+}

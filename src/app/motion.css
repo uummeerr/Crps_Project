@@ -1,0 +1,162 @@
+/* Motion layer: page transitions, the intro, the button lean, the 3D scene, and the
+   scroll-driven scenes. Loaded after globals.css and uses its design tokens.
+
+   Most scenes work the same way: a component writes a number from 0 to 1 into
+   a CSS variable (--p, scroll progress through that element; see lib/gsap.js)
+   and the rules here turn it into movement. Every rule reads the variable with
+   a fallback, so with reduced motion or without JavaScript, where the variable
+   is never set, the content simply sits in its finished state. */
+
+/* ---------- Page transitions ----------
+   React's <ViewTransition> (components/chrome/PageTransition.js) tags the
+   outgoing page with "page-exit" and the incoming one with "page-enter". */
+::view-transition-old(.page-exit) { animation: 240ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out, 440ms cubic-bezier(0.4, 0, 0.2, 1) both vt-lift-out; }
+::view-transition-new(.page-enter) { animation: 440ms ease-out 150ms both vt-fade-in, 640ms cubic-bezier(0.16, 1, 0.3, 1) both vt-rise-in; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+@keyframes vt-lift-out { to { translate: 0 -30px; } }
+@keyframes vt-rise-in { from { translate: 0 46px; } }
+
+/* The menu bar and theme dial hold still above the moving pages. They are
+   named only while a page transition is running: a permanent name would turn
+   the bar into its own layer and could cost it the frosted-glass blur.
+   A theme switch (html[data-vt="theme"]) is left to ThemeDial's own reveal. */
+html:active-view-transition:not([data-vt="theme"]) .nav { view-transition-name: site-nav; }
+html:active-view-transition:not([data-vt="theme"]) .theme-dial { view-transition-name: theme-dial; }
+::view-transition-group(site-nav), ::view-transition-group(theme-dial) { z-index: 10; }
+
+/* A blog card's cover photo travels into the article's cover. */
+::view-transition-group(.cover-morph) { animation-duration: 520ms; animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+::view-transition-old(.cover-morph), ::view-transition-new(.cover-morph) { height: 100%; object-fit: cover; }
+
+/* ---------- Intro ----------
+   Shown only while layout.js's inline script has set html[data-intro="play"],
+   which it does on the first page of a browser session. */
+.intro { display: none; }
+html[data-intro="play"] .intro { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: #06242a; color: #fff;
+  animation: intro-lift 0.9s cubic-bezier(0.76, 0, 0.24, 1) 1.15s forwards; }
+.intro-inner { display: grid; justify-items: center; gap: 14px; padding: 0 24px; text-align: center; }
+.intro-role { font-size: 12.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #2ccfa4; animation: rise 0.7s var(--ease) 0.1s backwards; }
+.intro-name { font-size: clamp(34px, 6vw, 78px); font-weight: 600; letter-spacing: -0.04em; line-height: 1; animation: rise 0.8s var(--ease) 0.2s backwards; }
+.intro-line { width: min(280px, 54vw); height: 2px; margin-top: 8px; border-radius: 2px; background: linear-gradient(90deg, #2ccfa4, #7fb4ff); transform-origin: left; animation: intro-draw 0.85s cubic-bezier(0.65, 0, 0.35, 1) 0.35s backwards; }
+@keyframes intro-draw { from { scale: 0 1; } }
+@keyframes intro-lift { to { translate: 0 -100%; visibility: hidden; } }
+/* The page's own entrance waits for the cover to lift. */
+html[data-intro="play"] main [data-load] { animation-delay: calc(var(--d, 0ms) + 1500ms); }
+html[data-intro="play"] main .words[data-load] .w > span { animation-delay: calc(var(--i, 0) * 60ms + var(--d, 0ms) + 1500ms); }
+
+/* ---------- Button lean ----------
+   The main buttons lean a few pixels toward the pointer while hovered
+   (components/chrome/ButtonLean.js). This uses `transform`, so it adds to the
+   hover lift (which uses `translate`). */
+:is(.btn-primary, .btn-mint) { transform: translate(var(--lean-x, 0px), var(--lean-y, 0px)); }
+
+/* ---------- 3D scene ----------
+   A fixed layer behind the page (components/scene/HomeScene.js): a backdrop
+   that darkens the page for the story chapter, and the sculpture's canvas.
+   Sections with a solid background cover it; the rest let it show through. */
+.scene { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.scene-backdrop { position: absolute; inset: 0; background: #06242a; opacity: 0; }
+.scene-canvas, .scene-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ---------- Hero drift ----------
+   --p runs 0 to 1 as the hero scrolls out of view. The copy lifts and fades,
+   the portrait sinks and shrinks a little, so the two halves part. */
+.hero-fx .hero-grid > :first-child { transform: translateY(calc(var(--p, 0) * -70px)); opacity: calc(1 - var(--p, 0) * 1.15); }
+.hero-fx .stage { transform: translateY(calc(var(--p, 0) * 90px)) scale(calc(1 - var(--p, 0) * 0.07)); }
+.hero-fx .aurora { transform: translateY(calc(var(--p, 0) * 140px)); }
+
+/* ---------- Text that lights up ----------
+   components/fx/Lit.js. --n is the number of words, --i a word's position.
+   A word goes from faint to full strength when --p passes its turn. */
+.lit .lw { opacity: clamp(0.32,calc(var(--p, 1) * (var(--n, 1) + 5) - var(--i, 0)), 1); transition: opacity 0.2s linear; }
+
+/* ---------- Film frame that grows ----------
+   --p runs 0 to 1 as the frame scrolls from the bottom of the screen to the
+   middle. It starts as a smaller, rounder card and settles to full size. */
+.grow .film { transform: scale(calc(0.8 + var(--p, 1) * 0.2)); border-radius: calc(60px - var(--p, 1) * 24px); transform-origin: 50% 70%; }
+
+/* ---------- Sideways gallery ----------
+   components/fx/HorizontalRail.js. By default a swipeable strip; on a wide
+   screen with motion allowed, the pinned version further down takes over. */
+.rail { position: relative; }
+.rail-stage { padding: 110px 0; }
+.rail-head { margin-bottom: 44px; }
+.rail-head .section-head, .rail-head .head-row { margin-bottom: 0; }
+.rail-view { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.rail-view::-webkit-scrollbar { display: none; }
+.rail-track { display: flex; gap: 22px; width: max-content; padding-inline: max(32px, calc((100vw - 1240px) / 2)); }
+.rail-panel { flex: 0 0 auto; width: min(430px, 82vw); min-height: min(440px, 52vh); scroll-snap-align: center; display: flex; flex-direction: column; }
+.rail-panel.wide { width: min(560px, 86vw); }
+.rail-foot { display: none; }
+.rail-count { font-weight: 600; font-size: 26px; letter-spacing: -0.03em; line-height: 1; color: var(--teal); font-variant-numeric: tabular-nums; }
+.rail-panel .rail-count { margin-bottom: auto; padding-bottom: 28px; }
+
+/* ---------- Story chapter ----------
+   components/scene/StoryChapter.js. By default a normal dark section: the
+   heading on the left, the four steps on the right. */
+.chapter { position: relative; background: #06242a; color: #fff; }
+.chapter-stage { padding: 110px 0; }
+.chapter-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 60px; align-items: center; }
+.chapter-grid > * { min-width: 0; }
+.chapter .eyebrow { color: #2ccfa4; }
+.chapter h2 { font-size: clamp(34px, 4.4vw, 60px); margin: 18px 0 0; }
+.chapter .serif { color: #2ccfa4; }
+.chapter-steps li { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 18px 0; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+.chapter-steps b { padding-top: 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.14em; color: #2ccfa4; }
+.chapter-steps strong { display: block; font-size: 19px; font-weight: 600; letter-spacing: -0.015em; }
+.chapter-detail h3 { margin: 10px 0 8px; font-size: clamp(20px, 2vw, 26px); line-height: 1.15; }
+.chapter-detail p { max-width: 46ch; font-size: 16.5px; color: rgba(255, 255, 255, 0.86); }
+.chapter-bar { display: none; }
+
+/* ---------- Pinned versions: wide screens, motion allowed ---------- */
+@media (min-width: 1081px) and (prefers-reduced-motion: no-preference) {
+  /* Gallery: the section is tall, the stage sticks, and the row slides left
+     by exactly its overflow. A translate percentage is the row's own width. */
+  .rail { height: calc(100vh + var(--n, 6) * 30vh); }
+  .rail-stage { position: sticky; top: 0; height: 100vh; padding: 0; display: flex; flex-direction: column; justify-content: center; overflow: clip; }
+  .rail-view { overflow: visible; }
+  .rail-track { transform: translateX(calc(var(--p, 0) * (100vw - 100%))); will-change: transform; }
+  .rail-foot { display: flex; align-items: center; gap: 18px; margin-top: 36px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+  .rail-bar { flex: 1; height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .rail-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--teal), var(--mint)); transform-origin: left; transform: scaleX(var(--p, 0)); }
+
+  /* Chapter: one viewport of scroll for arriving, then roughly one per step.
+     --pin runs 0 to 1 while the stage is stuck. */
+  .chapter { height: 440vh; }
+  .chapter-stage { position: sticky; top: 0; height: 100vh; padding: 0; display: grid; align-items: center; overflow: clip; }
+  .chapter-steps li { color: rgba(255, 255, 255, 0.62); transition: color 0.5s; }
+  .chapter-steps li b { color: inherit; transition: color 0.5s; }
+  .chapter-steps li:is(.on, .done) { color: #fff; }
+  .chapter-steps li:is(.on, .done) b { color: #2ccfa4; }
+  /* Only the current step shows its text; the rows open and close smoothly. */
+  .chapter-detail { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 0.6s var(--ease), opacity 0.45s; }
+  .chapter-detail > div { overflow: hidden; }
+  .chapter-steps li.on .chapter-detail { grid-template-rows: 1fr; opacity: 1; }
+  .chapter-bar { display: block; height: 3px; margin-top: 26px; border-radius: 3px; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
+  .chapter-bar i { display: block; height: 100%; background: linear-gradient(90deg, #2ccfa4, #7fb4ff); transform-origin: left; transform: scaleX(var(--pin, 0)); }
+
+  /* With the 3D running, the chapter itself is see-through: the scene's
+     backdrop darkens the page behind it, the sculpture fills the right-hand
+     side, and the text appears as the page darkens (--dark, 0 to 1). */
+  html[data-scene="on"] .chapter { background: transparent; }
+  html[data-scene="on"] .chapter-stage { opacity: var(--dark, 0); }
+}
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 1080px) {
+  .chapter-grid { grid-template-columns: 1fr; gap: 30px; }
+}
+@media (max-width: 760px) {
+  .rail-stage { padding: 84px 0; }
+  .rail-track { padding-inline: 20px; gap: 14px; }
+  .chapter-stage { padding: 84px 0; }
+}
+
+/* ---------- Reduced motion ----------
+   globals.css already stops every animation and transition. These finish the
+   job for the pieces defined here. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-intro="play"] .intro { display: none; }
+  ::view-transition-old(*), ::view-transition-new(*), ::view-transition-group(*) { animation-duration: 0s !important; animation-delay: 0s !important; }
+}
