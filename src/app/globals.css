@@ -602,8 +602,13 @@ a.contact-card { display: flex; }
 /* ---------- Dark theme ----------
    Set on <html data-theme="dark"> by ThemeDial.js (and the script in layout.js).
    The tokens carry most of it; the rules below fix the few places that use a
-   fixed white, or put light text on an --ink surface (--ink turns light here). */
-html[data-theme="dark"] {
+   fixed white, or put light text on an --ink surface (--ink turns light here).
+
+   The film behind the lower half of the home page (passage.css) is dark in
+   either theme, so its wrapper takes the same tokens, and the fixes below that
+   matter inside it are written for it too. */
+html[data-theme="dark"],
+html[data-passage="on"] .passage {
   color-scheme: dark;
   --bg: #041317;
   --surface: #0c292e;
@@ -624,8 +629,10 @@ html[data-theme="dark"] {
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3), 0 18px 46px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.5);
 }
-html[data-theme="dark"] :is(.skip, .btn-primary, .nav-cta, .pill b, .steps-inline li b) { color: var(--bg); }
-html[data-theme="dark"] .btn-primary { box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35); }
+html[data-theme="dark"] :is(.skip, .btn-primary, .nav-cta, .pill b, .steps-inline li b),
+html[data-passage="on"] .passage .btn-primary { color: var(--bg); }
+html[data-theme="dark"] .btn-primary,
+html[data-passage="on"] .passage .btn-primary { box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35); }
 html[data-theme="dark"] .nav-shell,
 html[data-theme="dark"][data-scrolled] .nav-shell { background: rgba(8, 30, 35, 0.86); border-color: rgba(255, 255, 255, 0.16);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 16px 44px rgba(0, 0, 0, 0.4); }
@@ -634,20 +641,26 @@ html[data-theme="dark"] .brand-mark { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5
 html[data-theme="dark"] :is(.pill, .marquee, .portrait-tag, .jump) { background: var(--glass); border-color: var(--line); }
 html[data-theme="dark"] .dots { background-image: radial-gradient(rgba(228, 243, 239, 0.12) 1px, transparent 1.4px); }
 html[data-theme="dark"] .aurora i { opacity: 0.55; }
-html[data-theme="dark"] .film-play { color: #0a2a2d; }
-html[data-theme="dark"] .post-cover { background: linear-gradient(135deg, hsl(var(--h, 176) 45% 16%), hsl(calc(var(--h, 176) + 36) 40% 11%)); color: hsl(var(--h, 176) 60% 72%); }
-html[data-theme="dark"] :is(.sample, .sample-note) { background: #3a2c08; color: #f5d27a; }
+html[data-theme="dark"] .film-play,
+html[data-passage="on"] .passage .film-play { color: #0a2a2d; }
+html[data-theme="dark"] .post-cover,
+html[data-passage="on"] .passage .post-cover { background: linear-gradient(135deg, hsl(var(--h, 176) 45% 16%), hsl(calc(var(--h, 176) + 36) 40% 11%)); color: hsl(var(--h, 176) 60% 72%); }
+html[data-theme="dark"] :is(.sample, .sample-note),
+html[data-passage="on"] .passage .sample { background: #3a2c08; color: #f5d27a; }
 /* --ink is a light colour here, so the mint that sits on it in the light theme
    would wash out. These few marks switch to a deep teal instead. */
-html[data-theme="dark"] :is(.icon-badge.dark, .type-num) { color: #0a5a5b; }
+html[data-theme="dark"] :is(.icon-badge.dark, .type-num),
+html[data-passage="on"] .passage .icon-badge.dark { color: #0a5a5b; }
 html[data-theme="dark"] .pill b::before { background: #0a5a5b; }
 html[data-theme="dark"] .faq details[open] summary i::before,
 html[data-theme="dark"] .faq details[open] summary i::after { background: #0a5a5b; }
 @media (hover: hover) and (pointer: fine) {
-  html[data-theme="dark"] .card:hover .card-arrow { color: #0a5a5b; }
+  html[data-theme="dark"] .card:hover .card-arrow,
+  html[data-passage="on"] .passage .card:hover .card-arrow { color: #0a5a5b; }
 }
 /* The dark-teal panels sit close to the page colour here; an outline keeps their edge. */
-html[data-theme="dark"] :is(.card.night, .feature) { border-color: var(--line); }
+html[data-theme="dark"] :is(.card.night, .feature),
+html[data-passage="on"] .passage .card.night { border-color: var(--line); }
 html[data-theme="dark"] .cta-band { box-shadow: inset 0 0 0 1px var(--line); }
 @media (max-width: 1020px) {
   html[data-theme="dark"] .nav-menu { background: rgba(8, 30, 35, 0.96); }
