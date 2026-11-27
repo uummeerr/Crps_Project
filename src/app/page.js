@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Droplets, HandHeart, Syringe, Waves } from "lucide-react";
 import Hero from "@/components/Hero";
+import HomeAbout from "@/components/HomeAbout";
 import Headline from "@/components/Headline";
 import Section from "@/components/Section";
 import Film from "@/components/Film";
@@ -35,6 +36,9 @@ export default function HomePage() {
       <Progress className="hero-fx" start="top top" end="bottom top">
         <Hero />
       </Progress>
+
+      {/* About rises over the foot of the hero as a white sheet. */}
+      <HomeAbout />
 
       <Section tight>
         <Stats />
